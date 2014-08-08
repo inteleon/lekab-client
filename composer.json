@@ -1,0 +1,23 @@
+{
+    "name": "inteleon/lekab-client",
+    "description": "LEKAB client",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andreas Tylegard",
+            "email": "andtyl@gmail.com"
+        }
+    ],    
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/inteleon/inteleon-soap-client"
+        }
+    ],
+    "require": {
+        "inteleon/inteleon-soap-client": "~1.0.0"
+    },
+    "autoload": {
+        "psr-4": { "Inteleon\\": "src/" }
+    }         
+}
