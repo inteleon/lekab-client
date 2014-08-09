@@ -7,21 +7,39 @@ use Inteleon\Exception\InteleonSoapClientException;
 
 class LekabMessaging extends Lekab
 {
-    protected $wsdl = 'https://secure.lekab.com/ws/messaging-v2.wsdl';
+    /** @var string WSDL */
+    protected $wsdl = 'https://secure.lekab.com/ws/messaging.wsdl';
 
+    /**
+     * Set WSDL version
+     *
+     * @param int $version
+     */
+    public function setVersion($version)
+    {
+        switch ($version) {
+            case 1:
+                $this->wsdl = 'https://secure.lekab.com/ws/messaging.wsdl';
+                break;
+            case 2:
+                $this->wsdl = 'https://secure.lekab.com/ws/messaging-v2.wsdl';
+                break;
+            default:
+                throw new LekabClientException("Invalid version");
+        }
+    }
 
-    
     /**
      * Send a text message
      *
-     * @param string $message (utf-8)
-     * @param array|int $recipient (max 1000)
-     * @param string|int $sender (utf-8)
-     * @param boolean $replyable
-     * @param array $options
+     * @param string $message Message (Must be UTF-8 encoded)
+     * @param string|array $recipient One recipent or array of recipients (max 1000)
+     * @param string $sender Sender (Alphanum allowed)
+     * @param boolean $replyable Replyable
+     * @param array $options Options
      * @return array
      */
-    public function send($message, $recipient, $sender, $replyable, $options = array())
+    public function send($message, $recipient, $sender, $replyable = false, $options = array())
     {
         //Mandatory parameters 
         $request = array(
@@ -30,8 +48,7 @@ class LekabMessaging extends Lekab
                     'recipient' => is_array($recipient) ? $recipient : array($recipient)
                 ),
                 'sender' => $sender,
-//TODO: KONTROLLERA
-                'replyable' => ($replyable ? 'true' : 'false'),
+                'replyable' => $replyable,
                 'data' => array(
                     'sms' => array(
                         'payload' => array(
@@ -64,24 +81,22 @@ class LekabMessaging extends Lekab
 
         //Set flash message
         if (isset($options['flash'])) {
-            $request['SendRequest']['data']['sms']['flash'] = ($options['flash'] ? 'true' : 'false');
+            $request['SendRequest']['data']['sms']['flash'] = $options['flash'];
         }
         
         try {
             $soap_client = $this->getSoapClient();
-            $response = $soap_client->__soapCall('Send',$request);
+            $response = $soap_client->__soapCall('Send', $request);
 
         } catch (SoapFault $sf) {
+
             throw new LekabClientException($this->soapFaultToString($sf)); 
                     
-        } catch (InteleonSoapClientException $e) {    
-            throw new LekabClientException("Connection error: " . $e->getMessage());          
+        } catch (InteleonSoapClientException $e) {  
+
+            throw new LekabClientException('Connection error: ' . $e->getMessage());          
         }
         
-
-print_r($response);
-
-
         $result = array();
 
         foreach ($response->messageStatus as $messageStatus) {
@@ -100,46 +115,50 @@ print_r($response);
 
         return $result; 
     }   
-    
+   
+
+
+
+
     /**
      * Get status information of a sent text message
      *
-     * @param boolean $markStatusesRead
-     * @param int $maxNumberOfMessages
-     * @param array|int $messageIds
+     * @param boolean $markStatusesRead Mark the statuses as read
+     * @param int $maxNumberOfMessages Max number of messages
+     * @param array|string|null $messageIds Message ids of messages
      * @return array
      */
     public function getStatus($markStatusesRead = true, $maxNumberOfStatuses = 5, $messageIds = null)
     {
+         $request = array(
+            'GetMessageStatusRequest' => array(
+                'markStatusesRead' => $markStatusesRead,
+                'maxNumberOfStatuses' => $maxNumberOfStatuses
+            )
+        );           
+        
         if ($messageIds) {
             $messageIds = is_array($messageIds) ? $messageIds : array($messageIds); 
-        }
-        
-        try {               
-            $request = array('GetMessageStatusRequest' => array('markStatusesRead' => $markStatusesRead, 'maxNumberOfStatuses' => $maxNumberOfStatuses));           
-            
-            if ($messageIds) {
-                foreach($messageIds as $messageId) {
-                    $request['GetMessageStatusRequest']['messageIds']['messageId'][] = $messageId;
-                }
+            foreach ($messageIds as $messageId) {
+                $request['GetMessageStatusRequest']['messageIds']['messageId'][] = $messageId;
             }
-                    
+        }
+
+        try {    
             $soap_client = $this->getSoapClient();
-            
             $response = $soap_client->__soapCall('GetMessageStatus',$request);
 
         } catch (SoapFault $sf) {
-            throw new Exception($this->soapFaultToString($sf)); 
+
+            throw new LekabClientException($this->soapFaultToString($sf)); 
                     
-        } catch (Exception $e) {    
-            throw new Exception($e->getMessage());          
+        } catch (InteleonSoapClientException $e) {
+
+            throw new LekabClientException($e->getMessage());          
         }       
         
-        if (isset($response->messageStatus) === false) {
-            return null;
-        }
-                                    
         $result = array();
+
         foreach($response->messageStatus as $messageStatus) {
             $result[] = array(
                 'statusCode'            => $messageStatus->statusCode,
@@ -153,6 +172,7 @@ print_r($response);
                 'NumberOfCharacters'    => $messageStatus->attributes->attribute[1]->value->integer
             );
         }
+
         return $result;
     }
 
@@ -208,6 +228,12 @@ print_r($response);
         return $result; 
     }
 
+    /**
+     * Get status name of a sent message status code
+     *
+     * @param int $code
+     * @return string
+     */
     public static function getLekabStatusText($code)
     {
         switch (intval($code)) {
@@ -244,6 +270,12 @@ print_r($response);
         }
     }
     
+    /**
+     * Get description text of a sent message status code
+     *
+     * @param int $code
+     * @return string
+     */
     public static function getLekabStatusDesc($code)
     {
         switch (intval($code)) {

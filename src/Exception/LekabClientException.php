@@ -1,5 +1,5 @@
 <?php
-namespace Inteleon;
+namespace Inteleon\Exception;
 
 use Exception;
 
