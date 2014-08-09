@@ -1,12 +1,13 @@
 <?php
 namespace Inteleon;
 
-
 use SoapFault;
-use Exception;
+use Inteleon\Exception\LekabClientException;
+use Inteleon\Exception\InteleonSoapClientException;
 
-class LekabPosition
+class LekabPosition extends Lekab
 {
+    /** @var string WSDL */
     protected $wsdl = 'https://secure.lekab.com/ws/positioning.wsdl';
     
     /**
@@ -18,28 +19,30 @@ class LekabPosition
      */
     public function positioning($consumerId, $referenceId)
     {
+        $request = array(
+            'PositioningRequest' => array(
+                'consumerId' => $consumerId,
+                'referenceId' => $referenceId,
+            )
+        );
+
         try {       
-            $request = array(
-                'PositioningRequest' => array(
-                    'consumerId' => $consumerId,
-                    'referenceId' => $referenceId,
-                )
-            );
-
             $soap_client = $this->getSoapClient();
-
             $response = $soap_client->__soapCall('Positioning', $request);
 
         } catch (SoapFault $sf) {
-            throw new Exception($this->soapFaultToString($sf)); 
-        } catch (Exception $e) {    
-            throw new Exception($e->getMessage());          
+            
+            throw new LekabClientException($this->soapFaultToString($sf));
+
+        } catch (InteleonSoapClientException $e) {
+
+            throw new LekabClientException('Connection error: ' . $e->getMessage());          
         }
 
         return array(
             'latitude'  => $response->latitude,
             'longitude' => $response->longitude,
-            'accuracy' => $response->accuracy //meters
+            'accuracy'  => $response->accuracy //Meters
         );  
     } 
 }
