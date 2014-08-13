@@ -9,37 +9,53 @@ use Inteleon\InteleonSoapClient;
 
 abstract class Lekab
 {
+    /** @var string WSDL */
     protected $wsdl = '';
 
+    /** @var SoapClient */
     protected $soap_client;
     
-      
+    /** @var string Lekab username */
     protected $username;
 
-    
+    /** @var string Lekab password */
     protected $password;
   
-    protected $cache_wsdl;
-    
-
+    /** @var int The number of milliseconds to wait while trying to connect. */
     protected $connect_timeout;
     
-
+    /** @var int The maximum number of milliseconds to allow execution */
     protected $timeout;
-
-    protected $connect_attempts;
     
-
+    /** @var int Number of connect attempts to be made if connection error occurs */
+    protected $connect_attempts;    
+    
+    /** @var boolean Verify Lekab certificate */
     protected $verify_certificate;
-    
-//TODO: jämför mot decidas
-    public function __construct($username, $password, $cache_wsdl = true, $connect_timeout = 30000, $timeout = 30000)
+
+    /** @var boolean Cache the WSDL */
+    protected $cache_wsdl;
+
+    /**
+     * Constructor
+     *
+     * @param string $username Lekab username
+     * @param string $password Lekab Password
+     * @param integer $connect_timeout Connect timeout in milliseconds
+     * @param integer $timeout Timeout in milliseconds
+     * @param int $connect_attempts Number of connect attempts
+     * @param boolean $verify_certificate Verify Lekab certificate
+     * @param boolean $cache_wsdl Cache the WSDL
+     */
+    public function __construct($username, $password, $connect_timeout = 30000, $timeout = 30000, $connect_attempts = 1, $verify_certificate = true, $cache_wsdl = true)
     {
         $this->username = $username;
         $this->password = $password;
-        $this->cache_wsdl = $cache_wsdl ? WSDL_CACHE_BOTH : WSDL_CACHE_NONE;
         $this->connect_timeout = $connect_timeout;
         $this->timeout = $timeout;
+        $this->connect_attempts = $connect_attempts;
+        $this->verify_certificate = $verify_certificate;
+        $this->cache_wsdl = $cache_wsdl ? WSDL_CACHE_BOTH : WSDL_CACHE_NONE;
     }
 
     /**
@@ -62,9 +78,6 @@ abstract class Lekab
                 'features' => SOAP_SINGLE_ELEMENT_ARRAYS,           
             ));     
 
-//TODO: Ta bort
-$soap_client->setVerifyCertificate(false);                
-     
             //Set headers
             $soap_header_data = new SoapVar('<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"><wsse:UsernameToken wsu:Id="UsernameToken-3" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsse:Username>'.$this->username.'</wsse:Username><wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">'.$this->password.'</wsse:Password></wsse:UsernameToken></wsse:Security>', XSD_ANYXML);
             $soap_header = new SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $soap_header_data);  

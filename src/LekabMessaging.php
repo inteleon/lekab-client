@@ -11,25 +11,6 @@ class LekabMessaging extends Lekab
     protected $wsdl = 'https://secure.lekab.com/ws/messaging.wsdl';
 
     /**
-     * Set WSDL version
-     *
-     * @param int $version
-     */
-    public function setVersion($version)
-    {
-        switch ($version) {
-            case 1:
-                $this->wsdl = 'https://secure.lekab.com/ws/messaging.wsdl';
-                break;
-            case 2:
-                $this->wsdl = 'https://secure.lekab.com/ws/messaging-v2.wsdl';
-                break;
-            default:
-                throw new LekabClientException("Invalid version");
-        }
-    }
-
-    /**
      * Send a text message
      *
      * @param string $message Message (Must be UTF-8 encoded)
@@ -96,7 +77,7 @@ class LekabMessaging extends Lekab
 
             throw new LekabClientException('Connection error: ' . $e->getMessage());          
         }
-        
+     
         $result = array();
 
         foreach ($response->messageStatus as $messageStatus) {
@@ -116,10 +97,6 @@ class LekabMessaging extends Lekab
         return $result; 
     }   
    
-
-
-
-
     /**
      * Get status information of a sent text message
      *
@@ -128,7 +105,7 @@ class LekabMessaging extends Lekab
      * @param array|string|null $messageIds Message ids of messages
      * @return array
      */
-    public function getStatus($markStatusesRead = true, $maxNumberOfStatuses = 5, $messageIds = null)
+    public function getStatus($markStatusesRead = true, $maxNumberOfStatuses = 100, $messageIds = null)
     {
          $request = array(
             'GetMessageStatusRequest' => array(
@@ -138,7 +115,7 @@ class LekabMessaging extends Lekab
         );           
         
         if ($messageIds) {
-            $messageIds = is_array($messageIds) ? $messageIds : array($messageIds); 
+            $messageIds = is_array($messageIds) ? $messageIds : array($messageIds);
             foreach ($messageIds as $messageId) {
                 $request['GetMessageStatusRequest']['messageIds']['messageId'][] = $messageId;
             }
@@ -146,7 +123,7 @@ class LekabMessaging extends Lekab
 
         try {    
             $soap_client = $this->getSoapClient();
-            $response = $soap_client->__soapCall('GetMessageStatus',$request);
+            $response = $soap_client->__soapCall('GetMessageStatus', $request);
 
         } catch (SoapFault $sf) {
 
@@ -155,11 +132,15 @@ class LekabMessaging extends Lekab
         } catch (InteleonSoapClientException $e) {
 
             throw new LekabClientException($e->getMessage());          
-        }       
-        
+        }
+
         $result = array();
 
-        foreach($response->messageStatus as $messageStatus) {
+        if (isset($response->messageStatus) === false) {
+            return $result;
+        }
+
+        foreach ($response->messageStatus as $messageStatus) {
             $result[] = array(
                 'statusCode'            => $messageStatus->statusCode,
                 'statusText'            => $messageStatus->statusText,
@@ -176,47 +157,53 @@ class LekabMessaging extends Lekab
         return $result;
     }
 
+
     /**
-     * Get inbox
+     * Get incoming message
      *
-     * @param boolean $markMessagesRead
-     * @param int $maxNumberOfMessages
-     * @param boolean $retrieveMessages
-     * @param int|array $messageIds
+     * @param boolean $markMessagesRead Mark the retrieved messages as read
+     * @param integer $maxNumberOfMessages Number of messages to retrieve (not applicable if message ids specified)
+     * @param boolean $retrieveMessages Retreive messages. Set this to false if the data of the messages should not be retrieved. E.g. when marking already retrieved messages as read.
+     * @param array|string|null $messageIds Supply a list of message ids for retrieving messages or marking messages as read.
      * @return array
      */
-    public function get($markMessagesRead = true, $maxNumberOfMessages = 5, $retrieveMessages = true, $messageIds = null)
+    public function get($markMessagesRead = true, $maxNumberOfMessages = 10, $retrieveMessages = true, $messageIds = null)
     {
-        if ($messageIds) {
-            $messageIds = is_array($messageIds) ? $messageIds : array($messageIds); 
-        }
-        
         try {           
-            $request = array('GetIncomingMessagesRequest' => array('markMessagesRead' => $markMessagesRead, 'maxNumberOfMessages' => $maxNumberOfMessages, 'retrieveMessages' => $retrieveMessages));
+            $request = array(
+                'GetIncomingMessagesRequest' => array(
+                    'markMessagesRead' => $markMessagesRead,
+                    'maxNumberOfMessages' => $maxNumberOfMessages,
+                    'retrieveMessages' => $retrieveMessages
+                )
+            );
             
             if ($messageIds) {
-                foreach($messageIds as $messageId) {
+                $messageIds = is_array($messageIds) ? $messageIds : array($messageIds);
+                foreach ($messageIds as $messageId) {
                     $request['GetIncomingMessagesRequest']['messageIds']['messageId'][] = $messageId;
                 }
             }
             
             $soap_client = $this->getSoapClient();  
-
-            $response = $soap_client->__soapCall('GetIncomingMessages',$request);
+            $response = $soap_client->__soapCall('GetIncomingMessages', $request);
             
-        } catch(SoapFault $sf) {
-            throw new Exception($this->soapFaultToString($sf)); 
+        } catch (SoapFault $sf) {
+
+            throw new LekabClientException($this->soapFaultToString($sf)); 
                     
-        } catch(Exception $e) { 
-            throw new Exception($e->getMessage());          
+        } catch (InteleonSoapClientException $e) { 
+
+            throw new LekabClientException($e->getMessage());          
         }
-        
-        if (isset($response->incomingMessages) === false) {
-            return NULL;
-        }
-        
+
         $result = array();
-        foreach($response->incomingMessages as $incomingMessage) {
+
+        if (isset($response->incomingMessages) === false) {
+            return $result;
+        }
+        
+        foreach ($response->incomingMessages as $incomingMessage) {
             $result[] = array(
                 'id'        => $incomingMessage->id,
                 'sender'    => $incomingMessage->sender,
@@ -225,6 +212,7 @@ class LekabMessaging extends Lekab
                 'message'   => $incomingMessage->payload->sms->message
             );
         }
+
         return $result; 
     }
 
