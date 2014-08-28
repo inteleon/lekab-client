@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "inteleon/inteleon-soap-client",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Inteleon/inteleon-soap-client.git",
-                "reference": "4d7d790a4f119116246e44295e224e0ef87d7477"
+                "reference": "df9604ff4e0d2370b4306e5f6c0c0c2753050fa3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Inteleon/inteleon-soap-client/zipball/4d7d790a4f119116246e44295e224e0ef87d7477",
-                "reference": "4d7d790a4f119116246e44295e224e0ef87d7477",
+                "url": "https://api.github.com/repos/Inteleon/inteleon-soap-client/zipball/df9604ff4e0d2370b4306e5f6c0c0c2753050fa3",
+                "reference": "df9604ff4e0d2370b4306e5f6c0c0c2753050fa3",
                 "shasum": ""
             },
             "require": {
@@ -29,6 +29,9 @@
                     "Inteleon\\": "src/"
                 }
             },
+            "license": [
+                "MIT"
+            ],
             "authors": [
                 {
                     "name": "Andreas Tylegard",
@@ -37,10 +40,10 @@
             ],
             "description": "Inteleon Soap Client",
             "support": {
-                "source": "https://github.com/Inteleon/inteleon-soap-client/tree/v1.0.0",
+                "source": "https://github.com/Inteleon/inteleon-soap-client/tree/v1.0.1",
                 "issues": "https://github.com/Inteleon/inteleon-soap-client/issues"
             },
-            "time": "2014-08-07 14:49:37"
+            "time": "2014-08-13 10:47:49"
         }
     ],
     "packages-dev": [
