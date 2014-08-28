@@ -1,6 +1,7 @@
 <?php
 namespace Inteleon;
 
+use SoapClient;
 use SoapVar;
 use SoapHeader;
 use SoapFault;
@@ -56,6 +57,17 @@ abstract class Lekab
         $this->connect_attempts = $connect_attempts;
         $this->verify_certificate = $verify_certificate;
         $this->cache_wsdl = $cache_wsdl ? WSDL_CACHE_BOTH : WSDL_CACHE_NONE;
+    }
+
+    /**
+     * Set Soap Client. If you set a SoapClient then the options passed in the
+     * constructor will be ignored.
+     *
+     * @param SoapClient $soap_client
+     */
+    public function setSoapClient(SoapClient $soap_client)
+    {
+        $this->soap_client = $soap_client;
     }
 
     /**
