@@ -1,11 +1,11 @@
 <?php
-namespace Inteleon;
+namespace Inteleon\Lekab;
 
 use SoapFault;
-use Inteleon\Exception\LekabClientException;
-use Inteleon\Exception\InteleonSoapClientException;
+use Inteleon\Lekab\Exception\ClientException;
+use Inteleon\Soap\Exception\ClientException as InteleonSoapClientException;
 
-class LekabMessaging extends Lekab
+class Messaging extends Lekab
 {
     /** @var string WSDL */
     protected $wsdl = 'https://secure.lekab.com/ws/messaging.wsdl';
@@ -71,11 +71,11 @@ class LekabMessaging extends Lekab
 
         } catch (SoapFault $sf) {
 
-            throw new LekabClientException($this->soapFaultToString($sf)); 
+            throw new ClientException($this->soapFaultToString($sf)); 
                     
         } catch (InteleonSoapClientException $e) {  
 
-            throw new LekabClientException('Connection error: ' . $e->getMessage());          
+            throw new ClientException('Connection error: ' . $e->getMessage());          
         }
      
         $result = array();
@@ -127,11 +127,11 @@ class LekabMessaging extends Lekab
 
         } catch (SoapFault $sf) {
 
-            throw new LekabClientException($this->soapFaultToString($sf)); 
+            throw new ClientException($this->soapFaultToString($sf)); 
                     
         } catch (InteleonSoapClientException $e) {
 
-            throw new LekabClientException($e->getMessage());          
+            throw new ClientException($e->getMessage());          
         }
 
         $result = array();
@@ -190,11 +190,11 @@ class LekabMessaging extends Lekab
             
         } catch (SoapFault $sf) {
 
-            throw new LekabClientException($this->soapFaultToString($sf)); 
+            throw new ClientException($this->soapFaultToString($sf)); 
                     
         } catch (InteleonSoapClientException $e) { 
 
-            throw new LekabClientException($e->getMessage());          
+            throw new ClientException($e->getMessage());          
         }
 
         $result = array();

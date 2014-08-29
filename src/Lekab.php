@@ -1,12 +1,13 @@
 <?php
-namespace Inteleon;
+namespace Inteleon\Lekab;
 
 use SoapClient;
 use SoapVar;
 use SoapHeader;
 use SoapFault;
-use Exception;
-use Inteleon\InteleonSoapClient;
+use Inteleon\Lekab\Exception\ClientException;
+use Inteleon\Soap\Client as InteleonSoapClient;
+use Inteleon\Soap\Exception\ClientException as InteleonSoapClientException;
 
 abstract class Lekab
 {
@@ -99,11 +100,11 @@ abstract class Lekab
             
         } catch (SoapFault $sf) {
 
-            throw new Exception($this->soapFaultToString($sf)); 
+            throw new ClientException($this->soapFaultToString($sf)); 
                     
         } catch (InteleonSoapClientException $e) {
 
-            throw new Exception('Connection error: ' . $e->getMessage());          
+            throw new ClientException('Connection error: ' . $e->getMessage());          
         }               
     }
 
