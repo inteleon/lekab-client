@@ -1,6 +1,6 @@
 {
     "name": "inteleon/lekab-client",
-    "description": "LEKAB client",
+    "description": "Lekab client",
     "license": "MIT",
     "authors": [
         {
@@ -11,13 +11,13 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/inteleon/inteleon-soap-client"
+            "url": "https://github.com/inteleon/soap-client"
         }
     ],
     "require": {
-        "inteleon/inteleon-soap-client": "~1.0.0"
+        "inteleon/soap-client": "1.*"
     },
     "autoload": {
-        "psr-4": { "Inteleon\\": "src/" }
+        "psr-4": { "Inteleon\\Lekab\\": "src/" }
     }         
 }
