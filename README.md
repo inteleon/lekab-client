@@ -2,29 +2,20 @@
 
 For making requests to Lekab webservice. You need an account at Lekab.
 
-# Installation (Composer)
+**NOTE: Depends on Inteleon/Soap-Client** - Please add manually to your project.
 
-Add to your `composer.json`:
-
-```json
-"require": {
-    "inteleon/lekab-client": "*"
-}
-```
-Then run `composer install`.
-
-## Supported Lekab services
+# Supported Lekab services
 
 - Messaging
 - Positioning
 
-## How to use
+# How to use
 
 Todo...
 
 Please look at the code for class method parameters and return data.
 
-## Todo
+# Todo
 
 - Better tests
 - Better README

@@ -7,16 +7,7 @@
             "name": "Andreas Tylegard",
             "email": "andtyl@gmail.com"
         }
-    ],    
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/inteleon/soap-client"
-        }
     ],
-    "require": {
-        "inteleon/soap-client": "1.*"
-    },
     "autoload": {
         "psr-4": { "Inteleon\\Lekab\\": "src/" }
     }         
