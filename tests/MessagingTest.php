@@ -74,5 +74,15 @@ class LekabMessagingTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('message', $result[0]);
     }
 
-
+    public function testSetOptions()
+    {
+        $messaging = new Messaging('user', 'pass', 1000, 2000, 3, false, false);
+        $this->assertEquals('user', PHPUnit_Framework_Assert::readAttribute($messaging, 'username'));
+        $this->assertEquals('pass', PHPUnit_Framework_Assert::readAttribute($messaging, 'password'));
+        $this->assertEquals(1000, PHPUnit_Framework_Assert::readAttribute($messaging, 'connect_timeout'));
+        $this->assertEquals(2000, PHPUnit_Framework_Assert::readAttribute($messaging, 'timeout'));
+        $this->assertEquals(3, PHPUnit_Framework_Assert::readAttribute($messaging, 'connect_attempts'));
+        $this->assertEquals(false, PHPUnit_Framework_Assert::readAttribute($messaging, 'verify_certificate'));
+        $this->assertEquals(false, PHPUnit_Framework_Assert::readAttribute($messaging, 'cache_wsdl'));
+    }
 }
