@@ -88,9 +88,14 @@ abstract class Lekab
                 'exceptions' => true,
                 'trace' => false,
                 'cache_wsdl' => $this->cache_wsdl,
-                'features' => SOAP_SINGLE_ELEMENT_ARRAYS,           
+                'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
+                'connect_timeout' => ($this->connect_timeout / 1000),
             ));     
-
+            $soap_client->setTimeout($this->timeout);
+            $soap_client->setConnectTimeout($this->connect_timeout);
+            $soap_client->setConnectAttempts($this->connect_attempts);
+            $soap_client->setVerifyCertificate($this->verify_certificate);
+            
             //Set headers
             $soap_header_data = new SoapVar('<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"><wsse:UsernameToken wsu:Id="UsernameToken-3" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsse:Username>'.$this->username.'</wsse:Username><wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">'.$this->password.'</wsse:Password></wsse:UsernameToken></wsse:Security>', XSD_ANYXML);
             $soap_header = new SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $soap_header_data);  
