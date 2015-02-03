@@ -1,21 +1,19 @@
 # Lekab Client
 
-For making requests to Lekab webservice. You need an account at Lekab.
+For making requests to Lekab webservice. You need an account for Lekab.
 
-**NOTE: Depends on Inteleon/Soap-Client** - Please add manually to your project.
+You should read the manual for the webservice to have a basic understanding of how it works.
 
-# Supported Lekab services
+## Supported Lekab services
 
 - Messaging
 - Positioning
 
-# How to use
+## Documentation
 
-Todo...
+...
 
-Please look at the code for class method parameters and return data.
+## Todo
 
-# Todo
-
-- Better tests
-- Better README
+- Documentation
+- Tests
