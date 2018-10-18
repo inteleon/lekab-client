@@ -18,6 +18,42 @@ class LekabMessagingTest extends PHPUnit_Framework_TestCase
         return $soap_client_mock;
     }
 
+    /**
+     * @test
+     */
+    public function getUsername()
+    {
+        $u = 'admin';
+        $messaging = new Messaging($u, null);
+        $this->assertEquals($u, $messaging->getUsername());
+    }
+
+    /**
+     * @test
+     */
+    public function getPassword()
+    {
+        $p = 'pw';
+        $messaging = new Messaging(null, $p);
+        $this->assertEquals($p, $messaging->getPassword());
+    }
+
+    /**
+     * @test
+     */
+    public function overrideCredentials()
+    {
+        $u = 'admin';
+        $p = 'pw';
+        $new_u = 'foobar';
+        $new_p = 'qwerty';
+        $messaging = new Messaging($u, $p);
+        $messaging->setUsername($new_u);
+        $messaging->setPassword($new_p);
+        $this->assertEquals($new_u, $messaging->getUsername());
+        $this->assertEquals($new_p, $messaging->getPassword());
+    }
+
     public function testSend()
     {
         $dummy_lekab_response = unserialize('O:8:"stdClass":1:{s:13:"messageStatus";a:1:{i:0;O:8:"stdClass":8:{s:10:"statusCode";i:0;s:10:"statusText";s:6:"QUEUED";s:2:"id";s:10:"0-00000000";s:6:"sender";s:4:"xxxx";s:9:"recipient";s:11:"00000000000";s:4:"time";s:29:"2014-08-28T21:10:05.146+02:00";s:13:"billingStatus";i:0;s:10:"attributes";O:8:"stdClass":1:{s:9:"attribute";a:2:{i:0;O:8:"stdClass":2:{s:4:"name";s:16:"NumberOfMessages";s:5:"value";O:8:"stdClass":1:{s:7:"integer";i:1;}}i:1;O:8:"stdClass":2:{s:4:"name";s:18:"NumberOfCharacters";s:5:"value";O:8:"stdClass":1:{s:7:"integer";i:4;}}}}}}}');

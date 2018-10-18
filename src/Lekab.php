@@ -16,22 +16,22 @@ abstract class Lekab
 
     /** @var SoapClient */
     protected $soap_client;
-    
+
     /** @var string Lekab username */
     protected $username;
 
     /** @var string Lekab password */
     protected $password;
-  
+
     /** @var int The number of milliseconds to wait while trying to connect. */
     protected $connect_timeout;
-    
+
     /** @var int The maximum number of milliseconds to allow execution */
     protected $timeout;
-    
+
     /** @var int Number of connect attempts to be made if connection error occurs */
-    protected $connect_attempts;    
-    
+    protected $connect_attempts;
+
     /** @var boolean Verify Lekab certificate */
     protected $verify_certificate;
 
@@ -72,45 +72,77 @@ abstract class Lekab
     }
 
     /**
+     * @param string $username
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
      * Get the Soap client
      *
      * @return SoapClient
      */
     public function getSoapClient()
-    {   
+    {
         if (isset($this->soap_client)) {
             return $this->soap_client;
         }
 
         try {
-            
+
             $soap_client = new InteleonSoapClient($this->wsdl, array(
                 'exceptions' => true,
                 'trace' => false,
                 'cache_wsdl' => $this->cache_wsdl,
                 'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
                 'connect_timeout' => ($this->connect_timeout / 1000),
-            ));     
+            ));
             $soap_client->setTimeout($this->timeout);
             $soap_client->setConnectTimeout($this->connect_timeout);
             $soap_client->setConnectAttempts($this->connect_attempts);
             $soap_client->setVerifyCertificate($this->verify_certificate);
-            
+
             //Set headers
-            $soap_header_data = new SoapVar('<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"><wsse:UsernameToken wsu:Id="UsernameToken-3" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsse:Username>'.$this->username.'</wsse:Username><wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">'.$this->password.'</wsse:Password></wsse:UsernameToken></wsse:Security>', XSD_ANYXML);
-            $soap_header = new SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $soap_header_data);  
+            $soap_header_data = new SoapVar('<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"><wsse:UsernameToken wsu:Id="UsernameToken-3" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsse:Username>'.$this->getUsername().'</wsse:Username><wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">'.$this->getPassword().'</wsse:Password></wsse:UsernameToken></wsse:Security>', XSD_ANYXML);
+            $soap_header = new SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $soap_header_data);
             $soap_client->__setSoapHeaders($soap_header);
 
             return $this->soap_client = $soap_client;
-            
+
         } catch (SoapFault $sf) {
 
-            throw new ClientException($this->soapFaultToString($sf)); 
-                    
+            throw new ClientException($this->soapFaultToString($sf));
+
         } catch (InteleonSoapClientException $e) {
 
-            throw new ClientException('Connection error: ' . $e->getMessage());          
-        }               
+            throw new ClientException('Connection error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -120,13 +152,13 @@ abstract class Lekab
      * @return string
      */
     protected function soapFaultToString(SoapFault $sf)
-    {      
-        $errorstring = $sf->faultcode . ': ' . $sf->faultstring;     
-        if (isset($sf->detail->errorDetails) && $sf->detail->errorDetails) {        
+    {
+        $errorstring = $sf->faultcode . ': ' . $sf->faultstring;
+        if (isset($sf->detail->errorDetails) && $sf->detail->errorDetails) {
             foreach ($sf->detail->errorDetails as $errorDetail) {
-                $errorstring .= ' (' . $errorDetail->errorCode . ': ' . $errorDetail->errorDescription . ')';   
+                $errorstring .= ' (' . $errorDetail->errorCode . ': ' . $errorDetail->errorDescription . ')';
             }
         }
-        return $errorstring;    
+        return $errorstring;
     }
 }
